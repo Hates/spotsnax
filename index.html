@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SpotSnax</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script type="text/javascript" src="js/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="js/handlebars.js"></script>
+
+    <script id="entry-template" type="text/x-handlebars-template">
+      <div class="span5">
+        <img src="{{cover}}" id="currently_playing_cover" width="360">
+      </div>
+      <div class="span6">
+        <h3 id="currently_playing">{{artist}}: {{track}}</h3>
+        <hr>
+        <a href="https://www.google.com/?#hl=en&output=search&q={{url}}" target="_blank" class="btn btn-primary"><i class="icon-search icon-white"></i> Google: {{artist}}: {{track}}</a>
+        <br>
+        <a href="http://www.youtube.com/results?search_query={{url}}" target="_blank" class="btn btn-primary"><i class="icon-facetime-video icon-white"></i> YouTube: {{artist}}: {{track}}</a>
+        <br>
+        <a href="http://en.wikipedia.org/wiki/Special:Search?Go&search={{url}}" target="_blank" class="btn btn-primary"><i class="icon-book icon-white"></i> Wikipedia: {{artist}}: {{track}}</a>
+      </div>
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>SpotSnax</h1>
+      <hr>
+      <h3>Currently Playing</h3>
+      <div class="row" id="currently_playing_container"></div>
+    </div>
+
+    <script type="text/javascript">
+      $(function() {
+        initSpotSnax();
+      });
+
+      var spotSnax = {};
+
+      function initSpotSnax() {
+        spotSnax.sp = getSpotifyApi(1);
+        spotSnax.models = spotSnax.sp.require('sp://import/scripts/api/models');
+        spotSnax.player = spotSnax.models.player;
+        spotSnax.player.observe(spotSnax.models.EVENT.CHANGE, function (e) {
+          setCurrentTrack();
+        });
+        setCurrentTrack();
+      }
+
+      function setCurrentTrack() {
+        spotSnax.currentTrack = spotSnax.sp.trackPlayer.getNowPlayingTrack().track;
+        spotSnax.currentArtist = spotSnax.currentTrack.artists[0].name;
+        spotSnax.encodedURL = encodeURI(spotSnax.currentArtist + " " + spotSnax.currentTrack.name);
+        updateView();
+      }
+
+      function updateView() {
+        source = $("#entry-template").html();
+        template = Handlebars.compile(source);
+        $("#currently_playing_container").html(template({
+          track: spotSnax.currentTrack.name,
+          cover: spotSnax.currentTrack.album.cover,
+          artist: spotSnax.currentArtist,
+          url: spotSnax.encodedURL}));
+      }
+    </script>
+  </body>
+</html>

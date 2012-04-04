@@ -1,0 +1,9 @@
+{
+ "BundleType": "Application",
+ "AppName": {
+     "en": "SpotSnax"
+  },
+ "SupportedLanguages": [
+     "en"
+ ]
+}
